@@ -1,25 +1,31 @@
 import { Course } from "./course";
 import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Observable } from "rxjs";
 
 @Injectable({
   providedIn: "root"
 })
 export class CourseService {
-  retriveAll(): Course[] {
-    return COURSES;
+  private coursesUrl: string = "http://localhost:3100/api/courses";
+  constructor(private httpClient: HttpClient) {}
+  retriveAll(): Observable<Course[]> {
+    return this.httpClient.get<Course[]>(this.coursesUrl);
   }
 
-  retriveById(id: number): Course {
-    return COURSES.find((courseIterator: Course) => courseIterator.id === id);
+  retriveById(id: number): Observable<Course> {
+    return this.httpClient.get<Course>(`${this.coursesUrl}/${id}`);
   }
 
-  save(course: Course): void {
+  save(course: Course): Observable<Course> {
     if (course.id) {
-      const index = COURSES.findIndex(
-        (courseIterator: Course) => courseIterator.id === course.id
+      return this.httpClient.put<Course>(
+        this.coursesUrl + "/" + course.id,
+        course
       );
-      COURSES[index] = course;
     }
+
+    return this.httpClient.put<Course>(this.coursesUrl, course);
   }
 }
 
